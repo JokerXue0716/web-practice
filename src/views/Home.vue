@@ -104,6 +104,17 @@
         </el-row>
       </div>
     </div>
+
+    <el-dialog v-model="previewVisible" :title="previewArticle.title" width="700px" top="8vh" :close-on-click-modal="true">
+      <div style="margin-bottom: 8px;">
+        <el-tag v-for="tag in previewArticle.tags" :key="tag" size="small" style="margin-right: 4px;">{{ tag }}</el-tag>
+        <span style="color: #999; font-size: 13px; margin-left: 12px;">更新时间：{{ formatDate(previewArticle.updatedAt) }}</span>
+      </div>
+      <div v-html="renderedPreviewContent" style="background: #fafbfc; border-radius: 6px; padding: 16px; min-height: 200px;"></div>
+      <template #footer>
+        <el-button @click="previewVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -113,6 +124,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import NavBar from '../components/NavBar.vue'
 import { useArticleStore } from '../stores/article.store'
+import { marked } from 'marked'
 
 const router = useRouter()
 const articleStore = useArticleStore()
@@ -121,6 +133,8 @@ const articleStore = useArticleStore()
 const loading = ref(false)
 const searchKeyword = ref('')
 const filterStatus = ref('')
+const previewVisible = ref(false)
+const previewArticle = ref({})
 
 // 直接响应式绑定当前用户的文章
 const articles = computed(() => articleStore.articles.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
@@ -179,6 +193,12 @@ const filteredArticles = computed(() => {
   return result
 })
 
+const renderedPreviewContent = computed(() =>
+  previewArticle.value && previewArticle.value.content
+    ? marked.parse(previewArticle.value.content)
+    : ''
+)
+
 // 方法
 const loadArticles = async () => {
   loading.value = true
@@ -200,8 +220,8 @@ const editArticle = (article) => {
 }
 
 const viewArticle = (article) => {
-  // 这里可以实现文章预览功能
-  ElMessage.info('文章预览功能开发中...')
+  previewArticle.value = article
+  previewVisible.value = true
 }
 
 const deleteArticle = async (article) => {
@@ -378,3 +398,4 @@ onMounted(() => {
   }
 }
 </style>
+
