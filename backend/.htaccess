@@ -1,0 +1,48 @@
+RewriteEngine On
+
+# ---- Preserve Authorization for CGI/FastCGI ----
+CGIPassAuth On
+SetEnvIfNoCase Authorization "^(.*)$" AUTH_HEADER=$1
+RequestHeader set Authorization "%{AUTH_HEADER}e" env=AUTH_HEADER
+# -----------------------------------------------
+
+# ========= Charset =========
+AddDefaultCharset utf-8
+
+# ========= CORS�����ף�API�ļ���Ҳ�и���ȷ���ã� =========
+# ��������Vite�˿��� aiblog ����
+SetEnvIf Origin "^http(s)?://(localhost(:5173|:5174)?|aiblog)$" ORIGIN_OK=$0
+Header always set Access-Control-Allow-Origin %{ORIGIN_OK}e env=ORIGIN_OK
+Header always set Access-Control-Allow-Credentials "true"
+Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+
+# Ԥ������ֱ�ӷ���204
+RewriteCond %{REQUEST_METHOD} =OPTIONS
+RewriteRule ^ - [R=204,L]
+
+# ========= ·��ӳ�䣨վ��� = backend�� =========
+# ��֤
+RewriteRule ^auth/login$ api/auth/login.php [L]
+RewriteRule ^auth/register$ api/auth/register.php [L]
+RewriteRule ^auth/bootstrap-admin$ api/auth/bootstrap-admin.php [L]
+
+# �û�
+RewriteRule ^user/profile$ api/user/profile.php [L]
+RewriteRule ^user/password$ api/user/password.php [L]
+
+# ����
+RewriteRule ^articles$ api/articles/index.php [L]
+RewriteRule ^articles/detail$ api/articles/detail.php [L]
+
+# ��ǩ
+RewriteRule ^tags$ api/tags/index.php [L]
+
+# AI
+RewriteRule ^ai/polish$ api/ai/polish.php [L]
+RewriteRule ^ai/code-check$ api/ai/code-check.php [L]
+RewriteRule ^ai/summary$ api/ai/summary.php [L]
+RewriteRule ^ai/tag-recommend$ api/ai/tag-recommend.php [L]
+
+# ϵͳ
+RewriteRule ^system/status$ api/system/status.php [L]
